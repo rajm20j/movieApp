@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">theMoviesDb</string>
+    <string name="show_list_item">Show list item</string>
+    <string name="seasons">Seasons</string>
+</resources>
