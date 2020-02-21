@@ -3,6 +3,7 @@ package com.example.themoviesdb.di
 import com.example.themoviesdb.allShows.ListAllShows
 import com.example.themoviesdb.data.Repository
 import com.example.themoviesdb.epDesc.EpisodeDesc
+import com.example.themoviesdb.readEpisodeStories.ReadEpisodeStories
 import com.example.themoviesdb.showDesc.ShowDesc
 import dagger.Component
 import javax.inject.Singleton
@@ -18,4 +19,6 @@ interface AppComponent {
     fun doInjection(showDesc: ShowDesc)
 
     fun doInjection(episodeDesc: EpisodeDesc)
+
+    fun doInjection(readEpisodeStories: ReadEpisodeStories)
 }

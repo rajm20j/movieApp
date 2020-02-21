@@ -1,11 +1,8 @@
 package com.example.themoviesdb.data
 
-import android.util.Log
 import com.example.themoviesdb.MyApp
-import com.example.themoviesdb.data.ApiCallInterface
 import com.example.themoviesdb.extras.Constants
 import com.google.gson.JsonElement
-import com.google.gson.JsonObject
 import io.reactivex.Single
 
 class Repository(private val apiCallInterface: ApiCallInterface) {
@@ -15,10 +12,10 @@ class Repository(private val apiCallInterface: ApiCallInterface) {
     }
 
     fun executeGetTvListApi(pageNo: Int): Single<JsonElement> {
-        return apiCallInterface.tvList(Constants.API_KEY, pageNo)
+        return apiCallInterface.tvList("${Constants.BASE_URL_TO_GET}${Constants.TV_TOP_RATED}?api_key=${Constants.API_KEY}&page=${pageNo}")
     }
 
     fun executeGetTvShowSeasons(tvId: Int, season: Int): Single<JsonElement> {
-        return apiCallInterface.tvShowSeasons(tvId, season, Constants.API_KEY)
+        return apiCallInterface.tvShowSeasons("${Constants.BASE_URL_TO_GET}${Constants.TV}${tvId}/${Constants.SEASON}${season}?api_key=${Constants.API_KEY}")
     }
 }

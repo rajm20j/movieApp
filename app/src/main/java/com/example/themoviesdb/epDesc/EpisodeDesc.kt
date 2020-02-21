@@ -1,5 +1,6 @@
 package com.example.themoviesdb.epDesc
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
@@ -35,6 +36,7 @@ class EpisodeDesc : AppCompatActivity() {
     @Inject
     lateinit var gson: Gson
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_episode_desc)

@@ -6,6 +6,8 @@ import com.example.themoviesdb.extras.Constants
 import com.example.themoviesdb.data.ApiCallInterface
 import com.example.themoviesdb.data.Repository
 import com.example.themoviesdb.epDesc.EpisodeDescViewModelFactory
+import com.example.themoviesdb.readEpisodeStories.ReadEpisodeStoriesVM
+import com.example.themoviesdb.readEpisodeStories.ReadEpisodeStoriesVMFactory
 import com.example.themoviesdb.showDesc.ShowDescViewModelFactory
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -46,7 +48,7 @@ class UtilsModule {
     @Singleton
     internal fun provideRetrofit(gson: Gson, okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(Constants.BASE_URL)
+            .baseUrl(Constants.BASE_URL_TO_POST)
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create(gson))
             .client(okHttpClient)
@@ -85,6 +87,14 @@ class UtilsModule {
     @Singleton
     internal fun getEpisodeDescViewModelFactory(repository: Repository): ViewModelProvider.Factory {
         return EpisodeDescViewModelFactory(
+            repository
+        )
+    }
+
+    @Provides
+    @Singleton
+    internal fun getReadEpisodeStoriesVMFactory(repository: Repository): ViewModelProvider.Factory {
+        return ReadEpisodeStoriesVMFactory(
             repository
         )
     }

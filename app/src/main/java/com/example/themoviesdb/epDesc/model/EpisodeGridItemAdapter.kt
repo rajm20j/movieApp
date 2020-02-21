@@ -35,7 +35,7 @@ class EpisodeGridItemAdapter() : RecyclerView.Adapter<EpisodeGridItemAdapter.Vie
         holder.episodeName.text = episodeName
 
         holder.llLayout.setOnClickListener{
-//            context.startActivity(Intent(context, ReadEpisodeStories::class.java))
+            context.startActivity(Intent(context, ReadEpisodeStories::class.java))
         }
 
     }
