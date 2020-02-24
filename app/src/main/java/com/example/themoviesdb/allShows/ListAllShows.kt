@@ -21,7 +21,7 @@ import com.example.themoviesdb.R
 import com.example.themoviesdb.allShows.model.AllShowDataModel
 import com.example.themoviesdb.allShows.model.GridItemModel
 import com.example.themoviesdb.allShows.model.ListAllShowsGridAdapter
-import com.example.themoviesdb.data.Status
+import com.example.themoviesdb.data.model.Status
 import com.example.themoviesdb.data.model.ApiResponse
 import com.google.gson.Gson
 import com.google.gson.JsonElement

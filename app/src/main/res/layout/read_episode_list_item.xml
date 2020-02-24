@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/the_episode_big_view"
+    android:id="@+id/read_the_episode_big_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="5dp"
@@ -11,7 +11,7 @@
     android:padding="20dp">
 
     <TextView
-        android:id="@+id/episode_no"
+        android:id="@+id/read_episode_no"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="@font/roboto_slab"
@@ -21,7 +21,7 @@
         android:textAlignment="textStart"/>
 
     <TextView
-        android:id="@+id/episode_name"
+        android:id="@+id/read_episode_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="@font/roboto_slab"
@@ -32,17 +32,6 @@
         android:textSize="20sp"
         android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/episode_air_date"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:fontFamily="@font/roboto_slab_thin"
-        android:text="@string/air_date"
-        android:textAlignment="textStart"
-        android:textColor="@color/almost_white"
-        android:textSize="16sp" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_margin="10dp"
@@ -50,7 +39,7 @@
         android:background="@color/colorPrimary"/>
 
     <TextView
-        android:id="@+id/episode_overview"
+        android:id="@+id/read_episode_overview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="@font/roboto_slab_light"

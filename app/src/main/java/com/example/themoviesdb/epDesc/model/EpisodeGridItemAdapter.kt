@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.themoviesdb.R
 import com.example.themoviesdb.readEpisodeStories.ReadEpisodeStories
+import com.example.themoviesdb.utils.Utils
 
 
 class EpisodeGridItemAdapter() : RecyclerView.Adapter<EpisodeGridItemAdapter.ViewHolder>() {
@@ -24,10 +25,11 @@ class EpisodeGridItemAdapter() : RecyclerView.Adapter<EpisodeGridItemAdapter.Vie
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val episodeNo = listItems[position].episodeNo
-        val airDate = listItems[position].airDate
-        val overview = listItems[position].overview
-        val episodeName = listItems[position].episodeName
+        val listPositionItem = listItems[position]
+        val episodeNo = listPositionItem.episodeNo
+        val airDate = listPositionItem.airDate
+        val overview = listPositionItem.overview
+        val episodeName = listPositionItem.episodeName
 
         holder.episodeNo.text = "Episode $episodeNo"
         holder.airDate.text = "Air date: $airDate"
@@ -35,7 +37,9 @@ class EpisodeGridItemAdapter() : RecyclerView.Adapter<EpisodeGridItemAdapter.Vie
         holder.episodeName.text = episodeName
 
         holder.llLayout.setOnClickListener{
-            context.startActivity(Intent(context, ReadEpisodeStories::class.java))
+            val intent = Intent(context, ReadEpisodeStories::class.java)
+            Utils.currentShowEpisode = episodeNo.toString()
+            context.startActivity(intent)
         }
 
     }

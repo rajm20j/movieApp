@@ -49,7 +49,8 @@ class EpisodeDesc : AppCompatActivity() {
 
         val intent = intent
         val seasonNumber = intent.getStringExtra("seasonNo")
-        textViewSeasons.text = "Season ${Utils.episodList[0].seasonNumber.toString()}"
+//        textViewSeasons.text = "Season ${Utils.episodList[0].seasonNumber}"
+        textViewSeasons.text = "Season ${Utils.currentShowSeason}"
 
         initializeRV()
     }
