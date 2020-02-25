@@ -23,10 +23,23 @@ class ReadGridItemAdapter() : RecyclerView.Adapter<ReadGridItemAdapter.ViewHolde
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val listItemAtPosition = listItems[position]
-        holder.episodeNo.text = "S${Utils.currentShowSeason}E${Utils.currentShowEpisode}"
-        holder.episodeName.text = listItemAtPosition.title
-        holder.overview.text = listItemAtPosition.descr
+        when(position)
+        {
+            0 -> {
+                holder.llLayout.setBackgroundResource(R.drawable.plus_symbol)
+                holder.episodeNo.visibility = View.GONE
+                holder.episodeName.visibility = View.GONE
+                holder.overview.visibility = View.GONE
+                holder.linearLaoyutLine.visibility = View.GONE
+            }
+
+            else -> {
+                val listItemAtPosition = listItems[position]
+                holder.episodeNo.text = "S${Utils.currentShowSeason}E${Utils.currentShowEpisode}"
+                holder.episodeName.text = listItemAtPosition.title
+                holder.overview.text = listItemAtPosition.descr
+            }
+        }
 
         holder.llLayout.setOnClickListener{
 //            context.startActivity(Intent(context, ReadEpisodeStories::class.java))
@@ -43,6 +56,7 @@ class ReadGridItemAdapter() : RecyclerView.Adapter<ReadGridItemAdapter.ViewHolde
         val episodeNo = itemView.findViewById(R.id.read_episode_no) as TextView
         val overview = itemView.findViewById(R.id.read_episode_overview) as TextView
         val episodeName = itemView.findViewById(R.id.read_episode_name) as TextView
+        var linearLaoyutLine = itemView.findViewById(R.id.read_linear_layout_line) as LinearLayout
     }
 
     constructor(context: Context, listItems: MutableList<ReadEpisodeGridItemModel>) : this() {

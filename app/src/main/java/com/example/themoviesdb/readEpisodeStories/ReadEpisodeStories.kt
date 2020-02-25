@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -36,6 +37,9 @@ class ReadEpisodeStories : AppCompatActivity() {
     @BindView(R.id.forRecyclerView)
     lateinit var linearLayout: LinearLayout
 
+    @BindView(R.id.read_series_name)
+    lateinit var seriesNameTv: TextView
+
     @Inject
     lateinit var gson: Gson
 
@@ -56,6 +60,8 @@ class ReadEpisodeStories : AppCompatActivity() {
 
         readEpisodeStoriesVM.listGetResponse.observe(this, Observer<ApiResponse?>{ this.consumeGetFurtherResponse(it) })
         readEpisodeStoriesVM.listPostResponse.observe(this, Observer<ApiResponse?>{ this.consumePostFurtherResponse(it) })
+
+        seriesNameTv.text = Utils.currentShowTitle
 
         val title = Utils.currentShowTitle.replace("\\s".toRegex(),"").trim()
         val season = Utils.currentShowSeason.trim()
@@ -120,6 +126,7 @@ class ReadEpisodeStories : AppCompatActivity() {
         val allData = gson.fromJson(jsonArray.toString(), Array<ReadEpisodeGridItemModelClass>::class.java)
         Log.v("TEST", allData.toString())
 
+        list.add(ReadEpisodeGridItemModel())
         for(item in allData)
         {
             val tempItem = ReadEpisodeGridItemModel()
@@ -135,7 +142,10 @@ class ReadEpisodeStories : AppCompatActivity() {
         recyclerView.adapter = episodesAdapter
         recyclerView.layoutManager = GridLayoutManager(this, 1)
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        recyclerView.layoutParams = ViewGroup.LayoutParams(linearLayout.layoutParams.width, linearLayout.layoutParams.height)
+        recyclerView.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
         linearLayout.addView(recyclerView)
     }
 
