@@ -1,6 +1,5 @@
 package com.example.themoviesdb.data.model
 
-import com.example.themoviesdb.data.Status
 import com.google.gson.JsonElement
 
 class ApiResponse(val status: Status, val data: JsonElement?, val error: Throwable?) {

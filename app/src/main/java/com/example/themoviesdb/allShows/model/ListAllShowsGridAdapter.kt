@@ -12,6 +12,7 @@ import com.bumptech.glide.Glide
 import com.example.themoviesdb.R
 import com.example.themoviesdb.extras.Constants
 import com.example.themoviesdb.showDesc.ShowDesc
+import com.example.themoviesdb.utils.Utils
 
 class ListAllShowsGridAdapter() : RecyclerView.Adapter<ListAllShowsGridAdapter.ViewHolder>() {
 
@@ -34,7 +35,8 @@ class ListAllShowsGridAdapter() : RecyclerView.Adapter<ListAllShowsGridAdapter.V
             val intent = Intent(context, ShowDesc::class.java)
             intent.putExtra("overview", listPositionItem.overview)
             intent.putExtra("backdrop", listPositionItem.backdropPath)
-            intent.putExtra("title", listPositionItem.title)
+//            intent.putExtra("title", listPositionItem.title)
+            Utils.currentShowTitle = listPositionItem.title.toString()
             intent.putExtra("tvId", listPositionItem.tvId)
             context.startActivity(intent)
         }

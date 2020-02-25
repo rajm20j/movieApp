@@ -31,9 +31,10 @@ class ListAllSeasonGridAdapter() : RecyclerView.Adapter<ListAllSeasonGridAdapter
         holder.airDate.text = "First episode: $airDate"
 
         holder.llLayout.setOnClickListener{
-            val intent = Intent(context, EpisodeDesc::class.java)
             Utils.episodList = listItems[position].episodes
-            intent.putExtra("seasonNo", seasonNo)
+            Utils.currentShowSeason = seasonNo.toString()
+            val intent = Intent(context, EpisodeDesc::class.java)
+//            intent.putExtra("seasonNo", seasonNo)
             context.startActivity(intent)
         }
 

@@ -1,6 +1,5 @@
 package com.example.themoviesdb.showDesc
 
-import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -17,15 +16,15 @@ import butterknife.ButterKnife
 import com.bumptech.glide.Glide
 import com.example.themoviesdb.MyApp
 import com.example.themoviesdb.R
-import com.example.themoviesdb.data.Status
+import com.example.themoviesdb.data.model.Status
 import com.example.themoviesdb.data.model.ApiResponse
 import com.example.themoviesdb.extras.Constants
 import com.example.themoviesdb.showDesc.model.ListAllSeasonGridAdapter
 import com.example.themoviesdb.showDesc.model.SeasonsGridItemModel
 import com.example.themoviesdb.showDesc.model.ShowDescSeasonModelClass
+import com.example.themoviesdb.utils.Utils
 import com.google.gson.Gson
 import com.google.gson.JsonElement
-import java.lang.Error
 import javax.inject.Inject
 
 class ShowDesc : AppCompatActivity() {
@@ -67,7 +66,8 @@ class ShowDesc : AppCompatActivity() {
         showDescViewModel.listResponse.observe(this, Observer<ApiResponse?>{ this.consumeGetSeasonList(it) })
 
         val intent =intent
-        title.text = intent.getStringExtra("title")
+//        title.text = intent.getStringExtra("title")
+        title.text = Utils.currentShowTitle
         overview.text = intent.getStringExtra("overview")
         Glide.with(this)
             .load(Constants.IMAGE_BASE_URL + intent.getStringExtra("backdrop"))
