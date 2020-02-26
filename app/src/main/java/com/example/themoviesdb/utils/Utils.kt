@@ -11,6 +11,10 @@ object Utils {
     lateinit var currentShowSeason: String
     lateinit var currentShowEpisode: String
 
+    lateinit var titleForApi: String
+    lateinit var seasonForApi: String
+    lateinit var uidForApi: String
+
     fun toPrettyFormat(jsonString: String): String {
         val parser = JsonParser()
         val json = parser.parse(jsonString)
