@@ -19,7 +19,6 @@ class ReadGridItemAdapter() : RecyclerView.Adapter<ReadGridItemAdapter.ViewHolde
 
     lateinit var context: Context
     lateinit var listItems: MutableList<ReadEpisodeGridItemModel>
-    lateinit var readEpisodeStoriesVM: ReadEpisodeStoriesVM
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.read_episode_list_item, parent, false) //YE DEH LENA
@@ -65,9 +64,8 @@ class ReadGridItemAdapter() : RecyclerView.Adapter<ReadGridItemAdapter.ViewHolde
         var linearLaoyutLine = itemView.findViewById(R.id.read_linear_layout_line) as LinearLayout
     }
 
-    constructor(readEpisodeStoriesVM: ReadEpisodeStoriesVM, context: Context, listItems: MutableList<ReadEpisodeGridItemModel>) : this() {
+    constructor(context: Context, listItems: MutableList<ReadEpisodeGridItemModel>) : this() {
         this.context = context
         this.listItems = listItems
-        this.readEpisodeStoriesVM = readEpisodeStoriesVM
     }
 }
