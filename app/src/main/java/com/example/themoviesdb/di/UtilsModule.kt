@@ -9,6 +9,8 @@ import com.example.themoviesdb.epDesc.EpisodeDescViewModelFactory
 import com.example.themoviesdb.readEpisodeStories.ReadEpisodeStoriesVM
 import com.example.themoviesdb.readEpisodeStories.ReadEpisodeStoriesVMFactory
 import com.example.themoviesdb.showDesc.ShowDescViewModelFactory
+import com.example.themoviesdb.writeAStory.WriteAStoryViewModel
+import com.example.themoviesdb.writeAStory.WriteAStoryViewModelFactory
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -95,6 +97,14 @@ class UtilsModule {
     @Singleton
     internal fun getReadEpisodeStoriesVMFactory(repository: Repository): ViewModelProvider.Factory {
         return ReadEpisodeStoriesVMFactory(
+            repository
+        )
+    }
+
+    @Provides
+    @Singleton
+    internal fun getWriteAStoryViewModelFactory(repository: Repository): ViewModelProvider.Factory {
+        return WriteAStoryViewModelFactory(
             repository
         )
     }

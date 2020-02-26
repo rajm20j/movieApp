@@ -3,7 +3,8 @@ package com.example.themoviesdb.data
 import android.util.Log
 import com.example.themoviesdb.MyApp
 import com.example.themoviesdb.extras.Constants
-import com.example.themoviesdb.readEpisodeStories.model.ReadEpisodeGridItemModel
+import com.example.themoviesdb.writeAStory.WriteAStoryViewModel
+import com.example.themoviesdb.writeAStory.model.WriteAStoryModelClass
 import com.google.gson.JsonElement
 import io.reactivex.Single
 
@@ -26,7 +27,7 @@ class Repository(private val apiCallInterface: ApiCallInterface) {
         return apiCallInterface.readFurther(showName, seasonNo, uid)
     }
 
-    fun executePostFurther(showName: String, seasonNo: String, parentuid: String, readEpisodeGridItemModel: ReadEpisodeGridItemModel): Single<JsonElement> {
-        return apiCallInterface.postFurther(showName, seasonNo, parentuid, readEpisodeGridItemModel)
+    fun executePostFurther(showName: String, seasonNo: String, parentuid: String, writeAStoryModelClass: WriteAStoryModelClass): Single<JsonElement> {
+        return apiCallInterface.postFurther(showName, seasonNo, parentuid, writeAStoryModelClass)
     }
 }

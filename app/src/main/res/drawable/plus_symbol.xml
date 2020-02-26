@@ -17,7 +17,6 @@
             android:pivotY="50%"
             android:toDegrees="-90">
             <shape android:shape="line">
-                <solid android:color="@color/almost_white"/>
                 <stroke android:width="50dp" android:color="@color/colorPrimary" />
             </shape>
         </rotate>

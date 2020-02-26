@@ -1,6 +1,8 @@
 package com.example.themoviesdb.data
 
 import com.example.themoviesdb.readEpisodeStories.model.ReadEpisodeGridItemModel
+import com.example.themoviesdb.writeAStory.WriteAStoryViewModel
+import com.example.themoviesdb.writeAStory.model.WriteAStoryModelClass
 import com.google.gson.JsonElement
 import io.reactivex.Single
 import retrofit2.http.*
@@ -18,5 +20,5 @@ interface ApiCallInterface {
 
     @Headers("Content-Type: application/json")
     @POST("{showName}/{seasonNo}/{parentuid}")
-    fun postFurther(@Path("showName") showName: String, @Path("seasonNo") seasonNo: String, @Path("parentuid") uid: String, @Body readEpisodeGridItemModel: ReadEpisodeGridItemModel): Single<JsonElement>
+    fun postFurther(@Path("showName") showName: String, @Path("seasonNo") seasonNo: String, @Path("parentuid") uid: String, @Body writeAStoryModelClass: WriteAStoryModelClass): Single<JsonElement>
 }
