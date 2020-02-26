@@ -1,14 +1,11 @@
 package com.example.themoviesdb.readEpisodeStories
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -40,6 +37,11 @@ class ReadEpisodeStories : AppCompatActivity() {
     @BindView(R.id.read_series_name)
     lateinit var seriesNameTv: TextView
 
+    lateinit var globalRecyclerView: RecyclerView
+    lateinit var globalList: MutableList<ReadEpisodeGridItemModel>
+
+    var isScrolling = false
+
     @Inject
     lateinit var gson: Gson
 
@@ -47,8 +49,9 @@ class ReadEpisodeStories : AppCompatActivity() {
     lateinit var readEpisodeStoriesVMFactory: ReadEpisodeStoriesVMFactory
 
     private lateinit var readEpisodeStoriesVM: ReadEpisodeStoriesVM
-    private val list = mutableListOf<ReadEpisodeGridItemModel>()
-    var episodesAdapter = ReadGridItemAdapter(this, list)
+    private lateinit var titleForApi: String
+    private lateinit var seasonForApi: String
+    private lateinit var episodeForApi: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,50 +59,25 @@ class ReadEpisodeStories : AppCompatActivity() {
         ButterKnife.bind(this)
         (application as MyApp).myComponent.doInjection(this)
         readEpisodeStoriesVM = ViewModelProvider(this, readEpisodeStoriesVMFactory).get(
-            ReadEpisodeStoriesVM::class.java)
+            ReadEpisodeStoriesVM::class.java
+        )
 
-        readEpisodeStoriesVM.listGetResponse.observe(this, Observer<ApiResponse?>{ this.consumeGetFurtherResponse(it) })
-        readEpisodeStoriesVM.listPostResponse.observe(this, Observer<ApiResponse?>{ this.consumePostFurtherResponse(it) })
+        readEpisodeStoriesVM.listGetResponse.observe(
+            this,
+            Observer<ApiResponse?> { this.consumeGetFurtherResponse(it) })
 
         seriesNameTv.text = Utils.currentShowTitle
 
-        val title = Utils.currentShowTitle.replace("\\s".toRegex(),"").trim()
-        val season = Utils.currentShowSeason.trim()
-        val episode = Utils.currentShowEpisode.trim()
-        Log.v("TEST", "$title/$season/${title+season+episode}")
-        readEpisodeStoriesVM.hitReadFurther(title, season, title+season+episode)
-    }
-
-    private fun consumePostFurtherResponse(apiResponse: ApiResponse?) {
-        when(apiResponse!!.status) {
-            Status.LOADING -> {
-                progressBar.visibility = View.VISIBLE
-            }
-
-            Status.ERROR -> {
-                progressBar.visibility = View.GONE
-                renderErrorPostFurtherResponse(apiResponse.error)
-            }
-
-            Status.SUCCESS -> {
-                progressBar.visibility = View.GONE
-                renderSuccessPostFurtherResponse(apiResponse.data)
-            }
-            else -> Log.e(TAG, "Ye kya hua? :O")
-        }
-    }
-
-    private fun renderSuccessPostFurtherResponse(data: JsonElement?) {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    private fun renderErrorPostFurtherResponse(error: Throwable?) {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        titleForApi = Utils.currentShowTitle.replace("\\s".toRegex(), "").trim()
+        seasonForApi = Utils.currentShowSeason.trim()
+        episodeForApi = Utils.currentShowEpisode.trim()
+        Log.v("TEST", "$titleForApi/$seasonForApi/${titleForApi + seasonForApi + episodeForApi}")
+        readEpisodeStoriesVM.hitReadFurther(titleForApi, seasonForApi, titleForApi + seasonForApi + episodeForApi)
     }
 
     private fun consumeGetFurtherResponse(apiResponse: ApiResponse?) {
         Log.v("TEST", "consumeGetFurtherResponse")
-        when(apiResponse!!.status) {
+        when (apiResponse!!.status) {
             Status.LOADING -> {
                 progressBar.visibility = View.VISIBLE
             }
@@ -118,17 +96,21 @@ class ReadEpisodeStories : AppCompatActivity() {
     }
 
     private fun renderSuccessGetFurtherResponse(data: JsonElement?) {
-        Toast.makeText(this, "Success mein hain", Toast.LENGTH_SHORT).show()
         val jsonArray = data!!.asJsonArray
         Log.v("TEST", jsonArray.toString())
 
-//        val allData = gson.fromJson(jsonArray.toString(), mutableListOf<ReadEpisodeGridItemModelClass>()::class.java)
-        val allData = gson.fromJson(jsonArray.toString(), Array<ReadEpisodeGridItemModelClass>::class.java)
-        Log.v("TEST", allData.toString())
+        val list = mutableListOf<ReadEpisodeGridItemModel>()
 
-        list.add(ReadEpisodeGridItemModel())
-        for(item in allData)
-        {
+        val plusElement = ReadEpisodeGridItemModel()
+        list.add(plusElement)
+
+        val episodesAdapter = ReadGridItemAdapter(readEpisodeStoriesVM, this, list)
+
+        val allData =
+            gson.fromJson(jsonArray.toString(), Array<ReadEpisodeGridItemModelClass>::class.java)
+//        Utils.logInPrettyFormat("TEST", jsonArray.toString())
+        val recyclerView = RecyclerView(this)
+        for (item in allData) {
             val tempItem = ReadEpisodeGridItemModel()
             tempItem.uid = item.uid
             tempItem.title = item.title
@@ -138,15 +120,44 @@ class ReadEpisodeStories : AppCompatActivity() {
             list.add(tempItem)
         }
 
-        val recyclerView = RecyclerView(this)
         recyclerView.adapter = episodesAdapter
         recyclerView.layoutManager = GridLayoutManager(this, 1)
-        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        recyclerView.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         recyclerView.layoutParams = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         )
         linearLayout.addView(recyclerView)
+        if (list.size > 1) {
+            recyclerView.scrollToPosition(1)
+        }
+        this.globalRecyclerView = recyclerView
+        loadMore()
+        this.globalList = list
+    }
+
+    private fun loadMore() {
+        globalRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_FLING)
+                    isScrolling = true
+            }
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val manager = recyclerView.layoutManager as LinearLayoutManager
+                if (isScrolling) {
+                    if (dx > 15) {
+                        recyclerView.smoothScrollToPosition(manager.findLastVisibleItemPosition())
+                    } else if (dx < 15) {
+                            recyclerView.smoothScrollToPosition(manager.findFirstVisibleItemPosition())
+                    }
+                    isScrolling = false
+                }
+            }
+        })
     }
 
     private fun renderErrorGetFurtherResponse(error: Throwable?) {
