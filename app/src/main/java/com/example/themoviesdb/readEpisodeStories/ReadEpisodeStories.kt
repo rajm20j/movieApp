@@ -21,8 +21,10 @@ import com.example.themoviesdb.readEpisodeStories.model.ReadEpisodeGridItemModel
 import com.example.themoviesdb.readEpisodeStories.model.ReadEpisodeGridItemModelClass
 import com.example.themoviesdb.readEpisodeStories.model.ReadGridItemAdapter
 import com.example.themoviesdb.utils.Utils
+import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
 import com.google.gson.JsonElement
+import kotlinx.android.synthetic.main.activity_list_all_shows.*
 import javax.inject.Inject
 
 class ReadEpisodeStories : AppCompatActivity() {
@@ -37,9 +39,21 @@ class ReadEpisodeStories : AppCompatActivity() {
     @BindView(R.id.read_series_name)
     lateinit var seriesNameTv: TextView
 
+    @BindView(R.id.read_episode_back_nav)
+    lateinit var backNav: MaterialButton
+
+    @BindView(R.id.read_episode_front_nav)
+    lateinit var frontNav: MaterialButton
+
+    @BindView(R.id.read_episode_page_no)
+    lateinit var pageNoTv: TextView
+
+    @BindView(R.id.navigationBtn)
+    lateinit var navigationLinearLayout: LinearLayout
+
     lateinit var globalRecyclerView: RecyclerView
     lateinit var globalList: MutableList<ReadEpisodeGridItemModel>
-
+    var pageNo = 1
     var isScrolling = false
 
     @Inject
@@ -67,16 +81,83 @@ class ReadEpisodeStories : AppCompatActivity() {
             Observer<ApiResponse?> { this.consumeGetFurtherResponse(it) })
 
         seriesNameTv.text = Utils.currentShowTitle
+        pageNoTv.text = pageNo.toString()
 
         titleForApi = Utils.currentShowTitle.replace("\\s".toRegex(), "").trim()
         seasonForApi = Utils.currentShowSeason.trim()
         episodeForApi = Utils.currentShowEpisode.trim()
         Log.v("TEST", "$titleForApi/$seasonForApi/${titleForApi + seasonForApi + episodeForApi}")
-        readEpisodeStoriesVM.hitReadFurther(titleForApi, seasonForApi, titleForApi + seasonForApi + episodeForApi)
+        readEpisodeStoriesVM.hitReadFurther(
+            titleForApi,
+            seasonForApi,
+            titleForApi + seasonForApi + episodeForApi
+        )
+
+    }
+
+    private fun implementButtons() {
+
+        if (globalList.size == 2)
+            frontNav.visibility = View.INVISIBLE
+
+        if (globalList.size == 1)
+            backNav.visibility = View.INVISIBLE
+
+        frontNav.setOnClickListener {
+            if (pageNo < globalList.size - 1) {
+                if (backNav.visibility == View.INVISIBLE)
+                    backNav.visibility = View.VISIBLE
+
+                if (pageNoTv.visibility == View.INVISIBLE)
+                    pageNoTv.visibility = View.VISIBLE
+
+                pageNo++
+                pageNoTv.text = pageNo.toString()
+                if (pageNo == globalList.size - 1) {
+                    frontNav.visibility = View.INVISIBLE
+                }
+                globalRecyclerView.smoothScrollToPosition(pageNo)
+            }
+        }
+
+        frontNav.setOnLongClickListener {
+            pageNo = (globalRecyclerView.layoutManager as LinearLayoutManager).itemCount-1
+            pageNoTv.text = pageNo.toString()
+            globalRecyclerView.scrollToPosition(pageNo)
+            frontNav.visibility = View.INVISIBLE
+            if(globalList.size == 2)
+            {
+                backNav.visibility = View.VISIBLE
+                pageNoTv.visibility = View.VISIBLE
+            }
+            return@setOnLongClickListener true
+        }
+
+        backNav.setOnClickListener {
+            if (pageNo > 0) {
+                if (frontNav.visibility == View.INVISIBLE)
+                    frontNav.visibility = View.VISIBLE
+                pageNo--
+                pageNoTv.text = pageNo.toString()
+                if (pageNo == 0) {
+                    backNav.visibility = View.INVISIBLE
+                    pageNoTv.visibility = View.INVISIBLE
+                }
+                globalRecyclerView.smoothScrollToPosition(pageNo)
+            }
+        }
+
+        backNav.setOnLongClickListener {
+            if(globalList.size != 2)
+                frontNav.visibility = View.VISIBLE
+            pageNo = 1
+            pageNoTv.text = "1"
+            globalRecyclerView.scrollToPosition(1)
+            return@setOnLongClickListener true
+        }
     }
 
     private fun consumeGetFurtherResponse(apiResponse: ApiResponse?) {
-        Log.v("TEST", "consumeGetFurtherResponse")
         when (apiResponse!!.status) {
             Status.LOADING -> {
                 progressBar.visibility = View.VISIBLE
@@ -89,6 +170,7 @@ class ReadEpisodeStories : AppCompatActivity() {
 
             Status.SUCCESS -> {
                 progressBar.visibility = View.GONE
+                navigationLinearLayout.visibility = View.VISIBLE
                 renderSuccessGetFurtherResponse(apiResponse.data)
             }
             else -> Log.e(TAG, "Ye kya hua? :O")
@@ -97,7 +179,7 @@ class ReadEpisodeStories : AppCompatActivity() {
 
     private fun renderSuccessGetFurtherResponse(data: JsonElement?) {
         val jsonArray = data!!.asJsonArray
-        Log.v("TEST", jsonArray.toString())
+        Utils.logInPrettyFormat("TEST", jsonArray.toString())
 
         val list = mutableListOf<ReadEpisodeGridItemModel>()
 
@@ -132,9 +214,15 @@ class ReadEpisodeStories : AppCompatActivity() {
         if (list.size > 1) {
             recyclerView.scrollToPosition(1)
         }
+        else {
+            pageNo = 0
+            pageNoTv.text = "0"
+            navigationLinearLayout.visibility = View.INVISIBLE
+        }
         this.globalRecyclerView = recyclerView
         loadMore()
         this.globalList = list
+        implementButtons()
     }
 
     private fun loadMore() {
@@ -151,10 +239,42 @@ class ReadEpisodeStories : AppCompatActivity() {
                 if (isScrolling) {
                     if (dx > 15) {
                         recyclerView.smoothScrollToPosition(manager.findLastVisibleItemPosition())
+                        handleForwardPageNo(manager)
                     } else if (dx < 15) {
-                            recyclerView.smoothScrollToPosition(manager.findFirstVisibleItemPosition())
+                        recyclerView.smoothScrollToPosition(manager.findFirstVisibleItemPosition())
+                        handleBackwardPageNo(manager)
                     }
                     isScrolling = false
+                }
+            }
+
+            private fun handleBackwardPageNo(manager: LinearLayoutManager) {
+                pageNo = manager.findFirstVisibleItemPosition()
+                if (pageNo >= 0) {
+                    if (frontNav.visibility == View.INVISIBLE)
+                        frontNav.visibility = View.VISIBLE
+                    pageNoTv.text = pageNo.toString()
+                    if (pageNo == 0) {
+                        backNav.visibility = View.INVISIBLE
+                        pageNoTv.visibility = View.INVISIBLE
+                    }
+                }
+            }
+
+            private fun handleForwardPageNo(manager: LinearLayoutManager) {
+                pageNo = manager.findLastVisibleItemPosition()
+
+                if (pageNo <= globalList.size) {
+                    if (backNav.visibility == View.INVISIBLE)
+                        backNav.visibility = View.VISIBLE
+
+                    if (pageNoTv.visibility == View.INVISIBLE)
+                        pageNoTv.visibility = View.VISIBLE
+
+                    pageNoTv.text = pageNo.toString()
+                    if (pageNo == globalList.size - 1) {
+                        frontNav.visibility = View.INVISIBLE
+                    }
                 }
             }
         })
