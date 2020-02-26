@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -28,15 +29,47 @@
         android:layout_marginTop="15dp"
         android:layout_width="match_parent"
         android:layout_height="500dp"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="20dp"
         android:orientation="vertical"/>
 
     <LinearLayout
         android:id="@+id/navigationBtn"
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginBottom="20dp"
+        android:visibility="invisible">
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/read_episode_back_nav"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            app:icon="@drawable/back_navigation"
+            android:layout_marginEnd="45dp"
+            android:gravity="center"
+            style="@style/MaterialAlertDialog.MaterialComponents.Title.Icon" />
+
+        <TextView
+            android:id="@+id/read_episode_page_no"
+            android:layout_width="55dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_slab"
+            android:text="@string/page"
+            android:textSize="20sp"
+            android:textColor="@color/off_white"
+            android:textAlignment="center"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/read_episode_front_nav"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            app:icon="@drawable/front_navigation"
+            android:layout_marginStart="45dp"
+            android:gravity="center"
+            style="@style/MaterialAlertDialog.MaterialComponents.Title.Icon" />
 
 
     </LinearLayout>
