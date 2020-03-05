@@ -4,52 +4,52 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".readEpisodeStories.ReadEpisodeStories"
     android:background="@color/colorPrimary"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".readEpisodeStories.ReadEpisodeStories">
 
     <TextView
         android:id="@+id/read_series_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
         android:layout_marginEnd="30dp"
         android:fontFamily="@font/roboto_bold"
+        android:text="@string/seasons"
         android:textAlignment="textStart"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textColor="@color/almost_white"
-        android:textSize="40sp"
-        android:layout_marginTop="15dp"
-        android:text="@string/seasons"/>
+        android:textSize="40sp" />
 
-    <LinearLayout
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/forRecyclerView"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:layout_marginTop="15dp"
         android:layout_width="match_parent"
         android:layout_height="500dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="15dp"
         android:layout_marginBottom="20dp"
         android:orientation="vertical"/>
 
     <LinearLayout
         android:id="@+id/navigationBtn"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
         android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:orientation="horizontal"
         android:visibility="invisible">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/read_episode_back_nav"
+            style="@style/MaterialAlertDialog.MaterialComponents.Title.Icon"
             android:layout_width="50dp"
             android:layout_height="wrap_content"
-            android:padding="10dp"
-            app:icon="@drawable/back_navigation"
             android:layout_marginEnd="45dp"
             android:gravity="center"
-            style="@style/MaterialAlertDialog.MaterialComponents.Title.Icon" />
+            android:padding="10dp"
+            app:icon="@drawable/back_navigation" />
 
         <TextView
             android:id="@+id/read_episode_page_no"
@@ -57,30 +57,28 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/roboto_slab"
             android:text="@string/page"
-            android:textSize="20sp"
+            android:textAlignment="center"
             android:textColor="@color/off_white"
-            android:textAlignment="center"/>
+            android:textSize="20sp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/read_episode_front_nav"
+            style="@style/MaterialAlertDialog.MaterialComponents.Title.Icon"
             android:layout_width="50dp"
             android:layout_height="wrap_content"
-            android:padding="10dp"
-            app:icon="@drawable/front_navigation"
             android:layout_marginStart="45dp"
             android:gravity="center"
-            style="@style/MaterialAlertDialog.MaterialComponents.Title.Icon" />
-
-
+            android:padding="10dp"
+            app:icon="@drawable/front_navigation" />
     </LinearLayout>
 
     <ProgressBar
         android:id="@+id/pb_read_episode_stories"
-        android:layout_gravity="center_horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="center_horizontal"
         android:layout_marginBottom="10dp"
-        android:minWidth="15dp"
-        android:maxWidth="15dp"/>
-
+        android:maxWidth="15dp"
+        android:minWidth="15dp" />
 </LinearLayout>

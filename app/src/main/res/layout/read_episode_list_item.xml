@@ -2,13 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/read_the_episode_big_view"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="400dp"
     android:layout_margin="5dp"
     android:elevation="1dp"
     android:translationZ="10dp"
     android:background="@color/almost_black"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:padding="20dp"
+    android:isScrollContainer="true">
 
     <TextView
         android:id="@+id/read_episode_no"

@@ -2,11 +2,9 @@ package com.example.themoviesdb.readEpisodeStories
 
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -36,7 +34,7 @@ class ReadEpisodeStories : AppCompatActivity() {
     lateinit var progressBar: ProgressBar
 
     @BindView(R.id.forRecyclerView)
-    lateinit var linearLayoutForRV: LinearLayout
+    lateinit var papaRv: RecyclerView
 
     @BindView(R.id.read_series_name)
     lateinit var seriesNameTv: TextView
@@ -53,11 +51,9 @@ class ReadEpisodeStories : AppCompatActivity() {
     @BindView(R.id.navigationBtn)
     lateinit var navigationLinearLayout: LinearLayout
 
-    lateinit var papaRv: RecyclerView
-    lateinit var papaManager: LinearLayoutManager
-    val listOfRV = mutableListOf<RecyclerView>()
-
-    var pageNo = 1
+    var isScrolling = false
+    private var initialHit = true
+    private var pageNo = 1
 
     @Inject
     lateinit var gson: Gson
@@ -80,24 +76,32 @@ class ReadEpisodeStories : AppCompatActivity() {
             this,
             Observer<ApiResponse?> { this.consumeGetFurtherResponse(it) })
 
-        papaRv = RecyclerView(this)
-        linearLayoutForRV.addView(papaRv)
-        papaRv.adapter = ListOfRVModelAdapter(this, listOfRV, frontNav, backNav, pageNoTv)
-        papaRv.layoutManager = GridLayoutManager(this, 1)
-        papaManager = (papaRv.layoutManager as LinearLayoutManager)
+        Utils.largeListPosition = 0
+        Utils.smallListPosition = 1
+        Utils.listOfRV.clear()
+        Utils.currentPapaRV = papaRv
+        papaRv.adapter = ListOfRVModelAdapter(
+            this,
+            frontNav,
+            backNav,
+            pageNoTv,
+            readEpisodeStoriesVM
+        )
+        papaRv.layoutManager = LinearLayoutManager(this)
 
         seriesNameTv.text = Utils.currentShowTitle
         pageNoTv.text = pageNo.toString()
 
         Utils.titleForApi = Utils.currentShowTitle.replace("\\s".toRegex(), "").trim()
         Utils.seasonForApi = Utils.currentShowSeason.trim()
-        Utils.uidForApi = (Utils.titleForApi+Utils.seasonForApi+Utils.currentShowEpisode.trim())
+        Utils.uidForApi = (Utils.titleForApi + Utils.seasonForApi + Utils.currentShowEpisode.trim())
         Log.v("TEST", "${Utils.titleForApi}/${Utils.seasonForApi}/${Utils.uidForApi}")
         readEpisodeStoriesVM.hitReadFurther(
             Utils.titleForApi,
             Utils.seasonForApi,
             Utils.uidForApi
         )
+        loadMore()
     }
 
     private fun consumeGetFurtherResponse(apiResponse: ApiResponse?) {
@@ -123,15 +127,13 @@ class ReadEpisodeStories : AppCompatActivity() {
 
     private fun renderSuccessGetFurtherResponse(data: JsonElement?) {
         val jsonArray = data!!.asJsonArray
-        Utils.logInPrettyFormat("TEST", jsonArray.toString())
+//        Utils.logInPrettyFormat("TEST", jsonArray.toString())
 
 
         val list = mutableListOf<ReadEpisodeGridItemModel>()
 
         val plusElement = ReadEpisodeGridItemModel()
         list.add(plusElement)
-
-        val episodesAdapter = ReadGridItemAdapter(this, list)
 
         val allData =
             gson.fromJson(jsonArray.toString(), Array<ReadEpisodeGridItemModelClass>::class.java)
@@ -146,23 +148,78 @@ class ReadEpisodeStories : AppCompatActivity() {
             tempItem.descr = item.descr
             list.add(tempItem)
         }
+        val episodesAdapter = ReadGridItemAdapter(this, list)
         recyclerView.adapter = episodesAdapter
         recyclerView.layoutManager = GridLayoutManager(this, 1)
-        listOfRV.add(recyclerView)
-        papaRv.adapter?.notifyDataSetChanged()
 
-        if (list.size > 1) {
-            recyclerView.scrollToPosition(1)
+        Utils.listOfRV.add(recyclerView)
+        papaRv.adapter?.notifyItemInserted(Utils.largeListPosition+1)
+        Utils.globalListOfList.add(list)
+
+        if(initialHit)
+        {
+            if (Utils.globalListOfList[0].size > 1){
+                readEpisodeStoriesVM.hitReadFurther(
+                    Utils.titleForApi,
+                    Utils.seasonForApi,
+                    Utils.globalListOfList[0][1].uid!!
+                )
+            }
+            initialHit = false
         }
-        else {
-            pageNo = 0
-            pageNoTv.text = "0"
-            navigationLinearLayout.visibility = View.INVISIBLE
+    }
+
+
+    private fun loadMore() {
+        Utils.currentPapaRV?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_FLING)
+                    isScrolling = true
+            }
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val manager = recyclerView.layoutManager as LinearLayoutManager
+                if (isScrolling) {
+                    if (dy > 15) {
+                        Utils.largeListPosition = manager.findLastVisibleItemPosition()
+                        recyclerView.smoothScrollToPosition(Utils.largeListPosition)
+
+                        if(Utils.globalListOfList[Utils.largeListPosition].size > 1 && Utils.largeListPosition == papaRv.layoutManager!!.itemCount-1)
+                            readEpisodeStoriesVM.hitReadFurther(Utils.titleForApi, Utils.seasonForApi, Utils.globalListOfList[Utils.largeListPosition][1].uid!!)
+
+                    } else if (dy < 15) {
+                        Utils.largeListPosition = manager.findFirstVisibleItemPosition()
+                        recyclerView.smoothScrollToPosition(Utils.largeListPosition)
+                        Log.v("TEST", "Utils.listOfRV.size: ${Utils.listOfRV.size.toString()} & manager.itemCount: ${manager.itemCount}")
+                    }
+                    Log.v("TEST", "LargeList: ${Utils.largeListPosition}, SmallList: ${Utils.smallListPosition}")
+                    isScrolling = false
+                }
+            }
+        })
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK ) {
+            Utils.largeListPosition = 0
+            Utils.smallListPosition = 1
+            this.finish()
+            Toast.makeText(this, "Back pressed", Toast.LENGTH_SHORT).show()
+            return true;
         }
+        return super.onKeyDown(keyCode, event)
     }
 
     private fun renderErrorGetFurtherResponse(error: Throwable?) {
         Toast.makeText(this, "Could not fetch data", Toast.LENGTH_LONG).show()
         Log.v("TEST", "Could not fetch data: ${error.toString()}")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Utils.smallListPosition = 1
+        Utils.largeListPosition = 0
     }
 }

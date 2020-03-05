@@ -1,5 +1,6 @@
 package com.example.themoviesdb.allShows
 
+import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Bundle
@@ -23,6 +24,7 @@ import com.example.themoviesdb.allShows.model.GridItemModel
 import com.example.themoviesdb.allShows.model.ListAllShowsGridAdapter
 import com.example.themoviesdb.data.model.Status
 import com.example.themoviesdb.data.model.ApiResponse
+import com.example.themoviesdb.utils.Utils
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import javax.inject.Inject
@@ -52,6 +54,7 @@ class ListAllShows : AppCompatActivity() {
     @Inject
     lateinit var listAllShowsViewModelFactory: ListAllShowsViewModelFactory
 
+    @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_all_shows)
@@ -119,6 +122,7 @@ class ListAllShows : AppCompatActivity() {
 
     private fun renderSuccessTvListResponse(data: JsonElement?) {
         val jsonObject = data!!.asJsonObject
+        Utils.logInPrettyFormat(TAG, jsonObject.toString())
         Log.d(TAG, jsonObject.toString())
 
         val allData = gson.fromJson(jsonObject.toString(), AllShowDataModel::class.java)
@@ -133,7 +137,9 @@ class ListAllShows : AppCompatActivity() {
             grdItem.tvId = item.id
             list.add(grdItem)
         }
-        recyclerView.adapter?.notifyDataSetChanged()
+//        showListAdapter.submitList(list)
+        showListAdapter.notifyDataSetChanged()
+//        recyclerView.adapter?.notifyDataSetChanged()
     }
 
     private fun renderErrorTvListResponse(error: Throwable?) {

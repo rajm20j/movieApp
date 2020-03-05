@@ -8,25 +8,30 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AbsListView
 import android.widget.TextView
+import androidx.core.view.get
+import androidx.core.view.size
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.themoviesdb.R
+import com.example.themoviesdb.readEpisodeStories.ReadEpisodeStoriesVM
+import com.example.themoviesdb.utils.Utils
 import com.google.android.material.button.MaterialButton
 
 class ListOfRVModelAdapter() : RecyclerView.Adapter<ListOfRVModelAdapter.ViewHolder>()  {
 
-    lateinit var context: Context
-    lateinit var listItems: MutableList<RecyclerView>
-    lateinit var backNav: MaterialButton
-    lateinit var frontNav: MaterialButton
-    lateinit var pageNoTv: TextView
-    lateinit var globalRecyclerView: RecyclerView
-//    lateinit var globalRVManager: LinearLayoutManager
+    private lateinit var readEpisodeStoriesVM: ReadEpisodeStoriesVM
+    private lateinit var context: Context
+    private lateinit var listItems: MutableList<RecyclerView>
+    private lateinit var backNav: MaterialButton
+    private lateinit var frontNav: MaterialButton
+    private lateinit var pageNoTv: TextView
+    private lateinit var globalRecyclerView: RecyclerView
 
-    var listSize = 0
-    var pageNo: Int = 1
-    var isScrolling = false
+    private var listSize = 0
+    private var pageNo: Int = 1
+    private var isScrolling = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.list_for_recycler_view, parent, false) //YE DEH LENA
@@ -35,16 +40,15 @@ class ListOfRVModelAdapter() : RecyclerView.Adapter<ListOfRVModelAdapter.ViewHol
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.recyclerView.adapter = listItems[position].adapter
-
         globalRecyclerView = holder.recyclerView
-//        globalRVManager = holder.recyclerView.layoutManager as LinearLayoutManager
-        listSize = (listItems[position].layoutManager as? LinearLayoutManager)!!.itemCount
+        globalRecyclerView.adapter = Utils.listOfRV[position].adapter
 
-        holder.recyclerView.layoutManager = GridLayoutManager(context, 1)
-        holder.recyclerView.layoutManager =
+        listSize = (Utils.listOfRV[position].layoutManager as? LinearLayoutManager)!!.itemCount
+
+        globalRecyclerView.layoutManager = GridLayoutManager(context, 1)
+        globalRecyclerView.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        listItems[position].layoutParams = ViewGroup.LayoutParams(
+        Utils.listOfRV[position].layoutParams = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         )
@@ -55,7 +59,6 @@ class ListOfRVModelAdapter() : RecyclerView.Adapter<ListOfRVModelAdapter.ViewHol
         else {
             pageNo = 0
             pageNoTv.text = "0"
-//            navigationLinearLayout.visibility = View.INVISIBLE
         }
 
         loadMore()
@@ -87,6 +90,8 @@ class ListOfRVModelAdapter() : RecyclerView.Adapter<ListOfRVModelAdapter.ViewHol
                 globalRecyclerView.smoothScrollToPosition(pageNo)
             }
         }
+
+
 
         frontNav.setOnLongClickListener {
             pageNo = listSize-1
@@ -138,13 +143,39 @@ class ListOfRVModelAdapter() : RecyclerView.Adapter<ListOfRVModelAdapter.ViewHol
                 val manager = recyclerView.layoutManager as LinearLayoutManager
                 if (isScrolling) {
                     if (dx > 15) {
-                        recyclerView.smoothScrollToPosition(manager.findLastVisibleItemPosition())
+                        Utils.smallListPosition = manager.findLastVisibleItemPosition()
+                        recyclerView.smoothScrollToPosition(Utils.smallListPosition)
                         handleForwardPageNo(manager)
                     } else if (dx < 15) {
-                        recyclerView.smoothScrollToPosition(manager.findFirstVisibleItemPosition())
+                        Utils.smallListPosition = manager.findFirstVisibleItemPosition()
+                        recyclerView.smoothScrollToPosition(Utils.smallListPosition)
                         handleBackwardPageNo(manager)
                     }
+                    removeRange(Utils.largeListPosition+1, Utils.currentPapaRV?.adapter?.itemCount!!-1)
+                    if(Utils.smallListPosition != 0)
+                    {
+                        Log.v("TEST1", "ListOfRVSize: ${Utils.listOfRV.size}, GlobalListOfList: ${Utils.globalListOfList.size}, CurrentPapaRV: ${Utils.currentPapaRV?.adapter?.itemCount!!}")
+                        readEpisodeStoriesVM.hitReadFurther(Utils.titleForApi, Utils.seasonForApi, Utils.globalListOfList[Utils.largeListPosition][Utils.smallListPosition].uid!!)
+                        globalRecyclerView.adapter?.notifyDataSetChanged()
+                    }
+
+                    Log.v("TEST", "LargeList: ${Utils.largeListPosition}, SmallList: ${Utils.smallListPosition}")
                     isScrolling = false
+                }
+            }
+
+            fun removeRange(startIndex: Int, endIndex: Int) {
+                var eIndex = endIndex
+                if(startIndex<=endIndex)
+                {
+                    while(eIndex!=startIndex-1)
+                    {
+                        Log.v("TEST1", eIndex.toString())
+                        Utils.listOfRV.removeAt(eIndex)
+                        Utils.currentPapaRV?.adapter?.notifyItemRemoved(eIndex)
+                        Utils.globalListOfList.removeAt(eIndex)
+                        eIndex--
+                    }
                 }
             }
 
@@ -181,7 +212,8 @@ class ListOfRVModelAdapter() : RecyclerView.Adapter<ListOfRVModelAdapter.ViewHol
     }
 
     override fun getItemCount(): Int {
-        return listItems.size
+//        return listItems.size
+        return Utils.listOfRV.size
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -192,11 +224,11 @@ class ListOfRVModelAdapter() : RecyclerView.Adapter<ListOfRVModelAdapter.ViewHol
         val recyclerView = itemView.findViewById(R.id.rv_for_list) as RecyclerView
     }
 
-    constructor(context: Context, listItems: MutableList<RecyclerView>, frontNav: MaterialButton, backNav: MaterialButton, pageNoTv: TextView) : this() {
+    constructor(context: Context, frontNav: MaterialButton, backNav: MaterialButton, pageNoTv: TextView, readEpisodeStoriesVM: ReadEpisodeStoriesVM) : this() {
         this.context = context
-        this.listItems = listItems
         this.frontNav = frontNav
         this.backNav = backNav
         this.pageNoTv = pageNoTv
+        this.readEpisodeStoriesVM = readEpisodeStoriesVM
     }
 }
