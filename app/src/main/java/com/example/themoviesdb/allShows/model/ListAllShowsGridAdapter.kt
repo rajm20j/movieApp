@@ -44,6 +44,8 @@ class ListAllShowsGridAdapter() : RecyclerView.Adapter<ListAllShowsGridAdapter.V
             intent.putExtra("tvId", listPositionItem.tvId)
             context.startActivity(intent)
         }
+
+//        Utils.setScrollUpAnimation(context, holder.itemView, 250)
     }
 
     fun submitList(newList: MutableList<GridItemModel>)

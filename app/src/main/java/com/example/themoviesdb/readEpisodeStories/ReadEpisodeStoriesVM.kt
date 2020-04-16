@@ -12,7 +12,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 class ReadEpisodeStoriesVM(private val repository: Repository) : ViewModel() {
-    private val disposable = CompositeDisposable()
+    val disposable = CompositeDisposable()
     private val getResponseLiveData = MutableLiveData<ApiResponse>()
 
     internal val listGetResponse: LiveData<ApiResponse>

@@ -2,6 +2,7 @@ package com.example.themoviesdb.readEpisodeStories.model
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -18,9 +19,17 @@ import com.example.themoviesdb.R
 import com.example.themoviesdb.readEpisodeStories.ReadEpisodeStoriesVM
 import com.example.themoviesdb.utils.Utils
 import com.google.android.material.button.MaterialButton
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
+import java.util.*
+import java.util.concurrent.TimeUnit
 
-class ListOfRVModelAdapter() : RecyclerView.Adapter<ListOfRVModelAdapter.ViewHolder>()  {
+class ListOfRVModelAdapter() : RecyclerView.Adapter<ListOfRVModelAdapter.ViewHolder>() {
 
+    private val callNow: Boolean = false
     private lateinit var readEpisodeStoriesVM: ReadEpisodeStoriesVM
     private lateinit var context: Context
     private lateinit var listItems: MutableList<RecyclerView>
@@ -33,8 +42,13 @@ class ListOfRVModelAdapter() : RecyclerView.Adapter<ListOfRVModelAdapter.ViewHol
     private var pageNo: Int = 1
     private var isScrolling = false
 
+    private lateinit var disposable: Disposable
+    private var toDelay = Handler()
+    var runnable: Runnable? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val v = LayoutInflater.from(parent.context).inflate(R.layout.list_for_recycler_view, parent, false) //YE DEH LENA
+        val v = LayoutInflater.from(parent.context)
+            .inflate(R.layout.list_for_recycler_view, parent, false) //YE DEH LENA
         return ViewHolder(v)
     }
 
@@ -55,8 +69,7 @@ class ListOfRVModelAdapter() : RecyclerView.Adapter<ListOfRVModelAdapter.ViewHol
 
         if (listSize > 1) {
             globalRecyclerView.scrollToPosition(1)
-        }
-        else {
+        } else {
             pageNo = 0
             pageNoTv.text = "0"
         }
@@ -94,12 +107,11 @@ class ListOfRVModelAdapter() : RecyclerView.Adapter<ListOfRVModelAdapter.ViewHol
 
 
         frontNav.setOnLongClickListener {
-            pageNo = listSize-1
+            pageNo = listSize - 1
             pageNoTv.text = pageNo.toString()
             globalRecyclerView.scrollToPosition(pageNo)
             frontNav.visibility = View.INVISIBLE
-            if(listSize >= 2)
-            {
+            if (listSize >= 2) {
                 backNav.visibility = View.VISIBLE
                 pageNoTv.visibility = View.VISIBLE
             }
@@ -121,7 +133,7 @@ class ListOfRVModelAdapter() : RecyclerView.Adapter<ListOfRVModelAdapter.ViewHol
         }
 
         backNav.setOnLongClickListener {
-            if(listSize != 2)
+            if (listSize != 2)
                 frontNav.visibility = View.VISIBLE
             pageNo = 1
             pageNoTv.text = "1"
@@ -151,25 +163,49 @@ class ListOfRVModelAdapter() : RecyclerView.Adapter<ListOfRVModelAdapter.ViewHol
                         recyclerView.smoothScrollToPosition(Utils.smallListPosition)
                         handleBackwardPageNo(manager)
                     }
-                    removeRange(Utils.largeListPosition+1, Utils.currentPapaRV?.adapter?.itemCount!!-1)
-                    if(Utils.smallListPosition != 0)
-                    {
-                        Log.v("TEST1", "ListOfRVSize: ${Utils.listOfRV.size}, GlobalListOfList: ${Utils.globalListOfList.size}, CurrentPapaRV: ${Utils.currentPapaRV?.adapter?.itemCount!!}")
-                        readEpisodeStoriesVM.hitReadFurther(Utils.titleForApi, Utils.seasonForApi, Utils.globalListOfList[Utils.largeListPosition][Utils.smallListPosition].uid!!)
-                        globalRecyclerView.adapter?.notifyDataSetChanged()
+                    readEpisodeStoriesVM.disposable.clear()
+
+                    /*removeRange(
+                        Utils.largeListPosition + 1,
+                        Utils.currentPapaRV?.adapter?.itemCount!! - 1
+                    )*/
+
+                    val endIndex = Utils.currentPapaRV?.adapter?.itemCount!! - 1
+                    Utils.listOfRV.subList(Utils.largeListPosition + 1, endIndex).clear()
+                    Utils.currentPapaRV?.adapter?.notifyItemRangeRemoved(Utils.largeListPosition + 1, endIndex)
+                    Utils.globalListOfList.subList(Utils.largeListPosition + 1, endIndex).clear()
+
+                    if (Utils.smallListPosition != 0) {
+                        if (runnable != null) {
+                            toDelay.removeCallbacks(runnable!!)
+                        }
+                        Log.v(
+                            "TEST1",
+                            "ListOfRVSize: ${Utils.listOfRV.size}, GlobalListOfList: ${Utils.globalListOfList.size}, CurrentPapaRV: ${Utils.currentPapaRV?.adapter?.itemCount!!}"
+                        )
+                        readEpisodeStoriesVM.hitReadFurther(
+                            Utils.titleForApi,
+                            Utils.seasonForApi,
+                            Utils.globalListOfList[Utils.largeListPosition][Utils.smallListPosition] .uid!!
+                        )
+
+                        runnable = Runnable() {
+                        }
+                        toDelay.postDelayed(runnable!!, 1500)
                     }
 
-                    Log.v("TEST", "LargeList: ${Utils.largeListPosition}, SmallList: ${Utils.smallListPosition}")
+                    Log.v(
+                        "TEST",
+                        "LargeList: ${Utils.largeListPosition}, SmallList: ${Utils.smallListPosition}"
+                    )
                     isScrolling = false
                 }
             }
 
             fun removeRange(startIndex: Int, endIndex: Int) {
                 var eIndex = endIndex
-                if(startIndex<=endIndex)
-                {
-                    while(eIndex!=startIndex-1)
-                    {
+                if (startIndex <= endIndex) {
+                    while (eIndex != startIndex - 1) {
                         Log.v("TEST1", eIndex.toString())
                         Utils.listOfRV.removeAt(eIndex)
                         Utils.currentPapaRV?.adapter?.notifyItemRemoved(eIndex)
@@ -224,7 +260,13 @@ class ListOfRVModelAdapter() : RecyclerView.Adapter<ListOfRVModelAdapter.ViewHol
         val recyclerView = itemView.findViewById(R.id.rv_for_list) as RecyclerView
     }
 
-    constructor(context: Context, frontNav: MaterialButton, backNav: MaterialButton, pageNoTv: TextView, readEpisodeStoriesVM: ReadEpisodeStoriesVM) : this() {
+    constructor(
+        context: Context,
+        frontNav: MaterialButton,
+        backNav: MaterialButton,
+        pageNoTv: TextView,
+        readEpisodeStoriesVM: ReadEpisodeStoriesVM
+    ) : this() {
         this.context = context
         this.frontNav = frontNav
         this.backNav = backNav
