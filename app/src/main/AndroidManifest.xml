@@ -13,7 +13,8 @@
         android:roundIcon="@drawable/icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".writeAStory.WriteAStory"></activity>
+        <activity android:name=".temp.SampleActivity"></activity>
+        <activity android:name=".writeAStory.WriteAStory" />
         <activity android:name=".readEpisodeStories.ReadEpisodeStories" />
         <activity android:name=".epDesc.EpisodeDesc" />
         <activity android:name=".showDesc.ShowDesc" />

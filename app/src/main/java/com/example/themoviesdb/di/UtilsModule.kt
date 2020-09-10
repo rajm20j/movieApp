@@ -9,6 +9,7 @@ import com.example.themoviesdb.epDesc.EpisodeDescViewModelFactory
 import com.example.themoviesdb.readEpisodeStories.ReadEpisodeStoriesVM
 import com.example.themoviesdb.readEpisodeStories.ReadEpisodeStoriesVMFactory
 import com.example.themoviesdb.showDesc.ShowDescViewModelFactory
+import com.example.themoviesdb.temp.SampleVMFactory
 import com.example.themoviesdb.writeAStory.WriteAStoryViewModel
 import com.example.themoviesdb.writeAStory.WriteAStoryViewModelFactory
 import com.google.gson.Gson
@@ -105,6 +106,14 @@ class UtilsModule {
     @Singleton
     internal fun getWriteAStoryViewModelFactory(repository: Repository): ViewModelProvider.Factory {
         return WriteAStoryViewModelFactory(
+            repository
+        )
+    }
+
+    @Provides
+    @Singleton
+    internal fun getSampleActivity(repository: Repository): ViewModelProvider.Factory {
+        return SampleVMFactory(
             repository
         )
     }

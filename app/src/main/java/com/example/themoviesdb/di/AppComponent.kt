@@ -5,6 +5,7 @@ import com.example.themoviesdb.data.Repository
 import com.example.themoviesdb.epDesc.EpisodeDesc
 import com.example.themoviesdb.readEpisodeStories.ReadEpisodeStories
 import com.example.themoviesdb.showDesc.ShowDesc
+import com.example.themoviesdb.temp.SampleActivity
 import com.example.themoviesdb.writeAStory.WriteAStory
 import dagger.Component
 import javax.inject.Singleton
@@ -24,4 +25,6 @@ interface AppComponent {
     fun doInjection(readEpisodeStories: ReadEpisodeStories)
 
     fun doInjection(writeAStory: WriteAStory)
+
+    fun doInjection(sampleActivity: SampleActivity)
 }

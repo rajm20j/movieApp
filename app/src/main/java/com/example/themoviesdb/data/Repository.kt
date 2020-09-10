@@ -30,4 +30,8 @@ class Repository(private val apiCallInterface: ApiCallInterface) {
     fun executePostFurther(showName: String, seasonNo: String, parentuid: String, writeAStoryModelClass: WriteAStoryModelClass): Single<JsonElement> {
         return apiCallInterface.postFurther(showName, seasonNo, parentuid, writeAStoryModelClass)
     }
+
+    fun executeGetResponse(): Single<JsonElement> {
+        TODO("Not yet implemented")
+    }
 }
